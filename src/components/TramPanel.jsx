@@ -1,4 +1,8 @@
+import { useState } from 'react'
+
 export default function TramPanel({ line, lineColor, direction, currentStop, nextStation, arrivalTime, stopsAway, cars, predictedCars, onRefresh }) {
+  const [openCar, setOpenCar] = useState(null)
+
   function getColor(pct) {
     if (pct < 50) return '#059669'
     if (pct < 75) return '#d97706'
@@ -15,29 +19,51 @@ export default function TramPanel({ line, lineColor, direction, currentStop, nex
 
   const bestCar = predictedCars.reduce((best, car) => car.predicted < best.predicted ? car : best, predictedCars[0])
 
-  function CarBox({ car, valueKey = 'current' }) {
+  function TrainCar({ car, valueKey = 'current', type }) {
     const people = car[valueKey]
     const pct = Math.round((people / car.capacity) * 100)
     const color = getColor(pct)
+    const status = getStatus(pct)
+    const isOpen = openCar === `${valueKey}-${car.id}`
 
     return (
-      <div className="car-card readable-car" style={{ '--car-color': color }}>
-        <div className="car-header">
-          <span className="car-label">Car {car.id}</span>
-          <span className="car-status" style={{ color }}>{getStatus(pct)}</span>
-        </div>
-        <div className="big-people">{people} / {car.capacity}</div>
-        <div className="people-label">people</div>
-
-        <div
-          className="occupancy-word"
-          style={{ color }}
+      <div className={`train-car-wrap ${type}`}>
+        <button
+          className={`train-car ${type}`}
+          style={{ '--train-color': color }}
+          onClick={() => setOpenCar(isOpen ? null : `${valueKey}-${car.id}`)}
         >
-          {getStatus(pct)}
-</div>
-        <div className="car-bar-bg">
-          <div className="car-bar-fill" style={{ width: `${pct}%`, background: color }} />
-        </div>
+          <div className="train-windows">
+            <span />
+            <span />
+            <span />
+          </div>
+
+          <div className="train-car-text">
+            <span className="train-car-title">Car {car.id}</span>
+            <span className="train-car-status">{status}</span>
+          </div>
+
+          <span className="train-car-arrow">{isOpen ? '⌄' : '›'}</span>
+        </button>
+
+        {isOpen && (
+          <div className="train-car-details">
+            <strong>{people} / {car.capacity} people</strong>
+            <span>{pct}% full</span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  function TrainSet({ trainCars, valueKey }) {
+    return (
+      <div className="train-set">
+        {trainCars.map((car, index) => {
+          const type = index === 0 ? 'front-car' : index === trainCars.length - 1 ? 'back-car' : 'middle-car'
+          return <TrainCar key={car.id} car={car} valueKey={valueKey} type={type} />
+        })}
       </div>
     )
   }
@@ -72,9 +98,7 @@ export default function TramPanel({ line, lineColor, direction, currentStop, nex
 
       <div className="info-box">
         <div className="box-title">Current train status</div>
-        <div className="cars-grid">
-          {cars.map(car => <CarBox key={car.id} car={car} valueKey="current" />)}
-        </div>
+        <TrainSet trainCars={cars} valueKey="current" />
       </div>
 
       <div className="info-box predicted-box">
@@ -82,9 +106,7 @@ export default function TramPanel({ line, lineColor, direction, currentStop, nex
         <div className="best-car">
           Best choice: <strong>Car {bestCar.id}</strong> — estimated {bestCar.predicted} / {bestCar.capacity} people
         </div>
-        <div className="cars-grid">
-          {predictedCars.map(car => <CarBox key={car.id} car={car} valueKey="predicted" />)}
-        </div>
+        <TrainSet trainCars={predictedCars} valueKey="predicted" />
       </div>
 
       <button className="refresh-btn full-refresh" onClick={onRefresh} style={{ background: lineColor }}>
