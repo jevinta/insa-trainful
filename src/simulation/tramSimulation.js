@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 
-// ── T1 line: 26 stops, index 0 = Croix-Luizet (north), index 25 = Debourg (south) ──
+// ── T1 line: 27 stops, index 0 = IUT - Feyssine (north), index 26 = Debourg (south) ──
 export const T1_STATIONS = [
+  { id: 'iutfeyssine',   name: 'IUT - Feyssine',                     lat: 45.7869337, lng: 4.8819277 },
   { id: 'croixluizet',   name: 'Croix-Luizet',                      lat: 45.7836714, lng: 4.8832536 },
   { id: 'einstein',      name: 'INSA - Einstein',                    lat: 45.7824397, lng: 4.8776632 },
   { id: 'ladoua',        name: 'La Doua - Gaston Berger',            lat: 45.7815207, lng: 4.8721608 },
@@ -181,6 +182,6 @@ function createSimulationHook(stations, directions, startSeg) {
 }
 
 // T1: direction 0 = heading south toward Debourg
-export const useTramSimulation    = createSimulationHook(T1_STATIONS, ['Debourg',                 'IUT Feyssine'], 10)
+export const useTramSimulation    = createSimulationHook(T1_STATIONS, ['Debourg',                 'IUT - Feyssine'], 11)
 // T4: direction 0 = heading north toward La Doua
 export const useTramSimulationT4  = createSimulationHook(T4_STATIONS, ['La Doua - Gaston Berger', 'Hôpital Feyzin Vénissieux'], 12)
