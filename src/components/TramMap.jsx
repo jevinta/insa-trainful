@@ -46,7 +46,61 @@ const tramIcon = L.divIcon({
   popupAnchor: [0, -16],
 })
 
-const routePositions = STATIONS.map(s => [s.lat, s.lng])
+// Real T1 track geometry from OpenStreetMap (ways 1499609243→1499609244→318825358→1499609245→1499609246)
+const routePositions = [
+  [45.7808653, 4.8663444], // Université Lyon 1
+  [45.7809242, 4.8666069],
+  [45.7809467, 4.8667070],
+  [45.7810374, 4.8671106],
+  [45.7810532, 4.8671811],
+  [45.7811226, 4.8674904],
+  [45.7812616, 4.8681094],
+  [45.7814138, 4.8687872],
+  [45.7815182, 4.8692522],
+  [45.7815496, 4.8693919],
+  [45.7815575, 4.8694467],
+  [45.7815697, 4.8695316],
+  [45.7815725, 4.8695515],
+  [45.7815740, 4.8696767],
+  [45.7815370, 4.8703115],
+  [45.7815351, 4.8704061],
+  [45.7815490, 4.8705513],
+  [45.7816564, 4.8710156],
+  [45.7816735, 4.8711268],
+  [45.7816777, 4.8712536],
+  [45.7816642, 4.8713897],
+  [45.7816396, 4.8714986],
+  [45.7816019, 4.8716645],
+  [45.7815748, 4.8717901],
+  [45.7815027, 4.8721026],
+  [45.7814923, 4.8721478], // near La Doua - Gaston Berger
+  [45.7815207, 4.8721608], // La Doua - Gaston Berger
+  [45.7814562, 4.8723197],
+  [45.7814300, 4.8724441],
+  [45.7813923, 4.8725960],
+  [45.7813546, 4.8727577],
+  [45.7813273, 4.8729111],
+  [45.7813230, 4.8730015],
+  [45.7813278, 4.8730971],
+  [45.7813424, 4.8732014],
+  [45.7813865, 4.8733982],
+  [45.7814428, 4.8736495],
+  [45.7814815, 4.8738222],
+  [45.7815064, 4.8739333],
+  [45.7815859, 4.8742882],
+  [45.7816167, 4.8744256],
+  [45.7816701, 4.8746638],
+  [45.7817023, 4.8748077],
+  [45.7817394, 4.8749297],
+  [45.7817953, 4.8750700],
+  [45.7818697, 4.8752398],
+  [45.7819149, 4.8753629],
+  [45.7819598, 4.8755150],
+  [45.7823380, 4.8772077],
+  [45.7823574, 4.8772944],
+  [45.7823662, 4.8773339],
+  [45.7824397, 4.8776632], // INSA - Einstein
+]
 
 function InvalidateSizeOnMount() {
   const map = useMap()
@@ -57,7 +111,7 @@ function InvalidateSizeOnMount() {
 }
 
 export default function TramMap({ tramPosition, direction, nextStation, cars, onTramClick }) {
-  const center = [45.782, 4.873]
+  const center = [45.7816, 4.8720]
 
   const avgOccupancy = Math.round(
     cars.reduce((sum, c) => sum + Math.round((c.current / c.capacity) * 100), 0) / cars.length
@@ -112,10 +166,9 @@ export default function TramMap({ tramPosition, direction, nextStation, cars, on
       {STATIONS.map(station => (
         <Marker key={station.id} position={[station.lat, station.lng]} icon={stationIcon}>
           <Popup>
-            <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '120px' }}>
-              <strong>{station.name}</strong>
-              <br />
-              <span style={{ color: '#E0A800', fontWeight: 600 }}>T1</span>
+            <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '130px', color: '#1e293b' }}>
+              <div style={{ fontWeight: 700, marginBottom: '3px' }}>{station.name}</div>
+              <span style={{ background: '#d97706', color: '#fff', fontWeight: 700, fontSize: '11px', borderRadius: '4px', padding: '2px 7px' }}>T1</span>
             </div>
           </Popup>
         </Marker>
@@ -129,31 +182,28 @@ export default function TramMap({ tramPosition, direction, nextStation, cars, on
           eventHandlers={{ click: onTramClick }}
         >
           <Popup>
-            <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '140px' }}>
-              <strong>T1 Tram</strong>
-              <br />
-              Direction: <em>{direction}</em>
-              <br />
-              Next stop: <strong>{nextStation?.name}</strong>
-              <br />
-              <span style={{ color: occupancyColor, fontWeight: 600 }}>
-                Avg occupancy: {avgOccupancy}%
-              </span>
-              <br />
+            <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '160px', color: '#1e293b' }}>
+              <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '6px' }}>T1 Tram</div>
+              <div style={{ color: '#64748b', marginBottom: '2px' }}>→ <strong style={{ color: '#1e293b' }}>{direction}</strong></div>
+              <div style={{ color: '#64748b', marginBottom: '6px' }}>Next: <strong style={{ color: '#d97706' }}>{nextStation?.name}</strong></div>
+              <div style={{ color: occupancyColor, fontWeight: 700, marginBottom: '8px' }}>
+                {avgOccupancy}% occupied
+              </div>
               <button
                 onClick={onTramClick}
                 style={{
-                  marginTop: '6px',
-                  background: '#E0A800',
+                  background: '#d97706',
                   border: 'none',
-                  borderRadius: '4px',
-                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
                   cursor: 'pointer',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: '12px',
+                  color: '#fff',
+                  width: '100%',
                 }}
               >
-                View details
+                View details →
               </button>
             </div>
           </Popup>

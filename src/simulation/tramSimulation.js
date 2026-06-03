@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 
 export const STATIONS = [
-  { id: 'insa1', name: 'Université Lyon 1', lat: 45.7826, lng: 4.8728 },
-  { id: 'ladoua', name: 'La Doua - Gaston Berger', lat: 45.7806, lng: 4.8706 },
-  { id: 'einstein', name: 'INSA - Einstein', lat: 45.7834, lng: 4.8754 },
+  { id: 'insa1',    name: 'Université Lyon 1',       lat: 45.7808653, lng: 4.8663444 },
+  { id: 'ladoua',   name: 'La Doua - Gaston Berger', lat: 45.7815207, lng: 4.8721608 },
+  { id: 'einstein', name: 'INSA - Einstein',          lat: 45.7824397, lng: 4.8776632 },
 ]
 
 // T1 real endpoints for direction display

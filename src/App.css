@@ -1,5 +1,5 @@
 /* =============================================
-   TRAINFUL — Mobile-first CSS
+   TRAINFUL — Clean Light UI
    ============================================= */
 
 *, *::before, *::after {
@@ -9,22 +9,31 @@
 }
 
 :root {
-  --bg: #0f172a;
-  --bg2: #1e293b;
-  --bg3: #334155;
-  --surface: rgba(30, 41, 59, 0.92);
-  --surface2: rgba(51, 65, 85, 0.7);
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --t1: #E0A800;
-  --t1-dim: rgba(224, 168, 0, 0.15);
-  --green: #22c55e;
-  --yellow: #eab308;
-  --orange: #f97316;
-  --red: #ef4444;
-  --radius: 14px;
-  --radius-sm: 8px;
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --t1: #d97706;
+  --t1-bg: #fffbeb;
+  --t1-border: #fde68a;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --yellow: #ca8a04;
+  --yellow-bg: #fefce8;
+  --orange: #ea580c;
+  --orange-bg: #fff7ed;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.04);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
 }
 
 html, body, #root {
@@ -33,12 +42,12 @@ html, body, #root {
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 /* =============================================
-   APP SHELL LAYOUT
+   APP SHELL
    ============================================= */
 
 .app-shell {
@@ -47,8 +56,8 @@ html, body, #root {
   height: 100%;
   max-width: 480px;
   margin: 0 auto;
-  position: relative;
   background: var(--bg);
+  position: relative;
 }
 
 /* =============================================
@@ -56,9 +65,9 @@ html, body, #root {
    ============================================= */
 
 .app-header {
-  background: var(--bg2);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 10px 16px;
+  padding: 14px 20px;
   flex-shrink: 0;
   z-index: 10;
 }
@@ -66,24 +75,26 @@ html, body, #root {
 .header-inner {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .app-logo {
   font-size: 22px;
+  line-height: 1;
 }
 
 .app-name {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
-  color: var(--t1);
-  letter-spacing: -0.3px;
+  color: var(--text);
+  letter-spacing: -0.4px;
 }
 
 .app-sub {
   font-size: 12px;
   color: var(--text-muted);
-  margin-left: 2px;
+  margin-left: auto;
+  font-weight: 500;
 }
 
 /* =============================================
@@ -91,8 +102,8 @@ html, body, #root {
    ============================================= */
 
 .map-area {
-  flex: 0 0 52vh;
-  min-height: 220px;
+  flex: 0 0 46vh;
+  min-height: 200px;
   position: relative;
   z-index: 1;
 }
@@ -108,7 +119,7 @@ html, body, #root {
 
 .tab-bar {
   display: flex;
-  background: var(--bg2);
+  background: var(--surface);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -121,13 +132,13 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   padding: 10px 4px;
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-muted);
-  transition: color 0.15s, background 0.15s;
+  color: var(--text-light);
+  transition: color 0.15s, background 0.1s;
   position: relative;
 }
 
@@ -139,27 +150,27 @@ html, body, #root {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 20%;
-  right: 20%;
+  left: 16%;
+  right: 16%;
   height: 2px;
   background: var(--t1);
   border-radius: 2px 2px 0 0;
 }
 
 .tab-btn:active {
-  background: var(--bg3);
+  background: var(--bg);
 }
 
 .tab-icon {
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1;
 }
 
 .tab-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 }
 
 /* =============================================
@@ -175,50 +186,22 @@ html, body, #root {
 
 .panel-content {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* =============================================
-   PANEL HEADER (Tram Panel)
+   SECTION LABEL
    ============================================= */
 
-.panel-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border);
-}
-
-.panel-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.panel-title {
-  font-size: 18px;
+.section-label {
+  font-size: 11px;
   font-weight: 700;
-  color: var(--text);
-  line-height: 1.2;
-}
-
-.panel-direction {
-  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
   color: var(--text-muted);
-}
-
-.panel-direction strong {
-  color: var(--t1);
-}
-
-.panel-next-stop {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.panel-next-stop strong {
-  color: var(--text);
+  padding: 0 2px;
 }
 
 /* =============================================
@@ -227,31 +210,82 @@ html, body, #root {
 
 .line-badge {
   background: var(--t1);
-  color: #000;
-  font-weight: 800;
-  font-size: 14px;
-  border-radius: 6px;
-  padding: 4px 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: var(--radius-xs);
+  padding: 3px 8px;
   letter-spacing: 0.3px;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .line-badge.small {
-  font-size: 11px;
-  padding: 2px 7px;
-  border-radius: 4px;
+  font-size: 10px;
+  padding: 2px 6px;
 }
 
 /* =============================================
-   CAR CARDS (Tram Panel)
+   TRAM PANEL — Header
+   ============================================= */
+
+.panel-header {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+.panel-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.panel-direction {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel-direction strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.panel-next-stop {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.panel-next-stop strong {
+  color: var(--t1);
+  font-weight: 600;
+}
+
+/* =============================================
+   CAR CARDS
    ============================================= */
 
 .cars-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin-bottom: 16px;
 }
 
 @media (max-width: 340px) {
@@ -263,12 +297,12 @@ html, body, #root {
 .car-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  backdrop-filter: blur(8px);
+  gap: 7px;
+  box-shadow: var(--shadow-sm);
 }
 
 .car-header {
@@ -278,37 +312,39 @@ html, body, #root {
 }
 
 .car-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
 }
 
 .car-status {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .car-count {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--text);
   line-height: 1;
 }
 
 .car-capacity {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--text-muted);
 }
 
 .car-bar-bg {
   width: 100%;
-  height: 6px;
-  background: var(--bg3);
+  height: 5px;
+  background: var(--border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -320,7 +356,7 @@ html, body, #root {
 }
 
 .car-pct {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -329,13 +365,15 @@ html, body, #root {
    ============================================= */
 
 .panel-footer {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .tram-specs {
@@ -343,23 +381,25 @@ html, body, #root {
   gap: 14px;
   font-size: 13px;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .refresh-btn {
-  background: var(--t1-dim);
-  border: 1px solid var(--t1);
+  background: var(--t1-bg);
+  border: 1px solid var(--t1-border);
   color: var(--t1);
-  border-radius: var(--radius-sm);
-  padding: 8px 16px;
-  font-size: 13px;
+  border-radius: var(--radius-xs);
+  padding: 8px 14px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.2px;
 }
 
 .refresh-btn:active {
   transform: scale(0.97);
-  background: rgba(224, 168, 0, 0.25);
+  background: #fde68a;
 }
 
 /* =============================================
@@ -376,11 +416,11 @@ html, body, #root {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px;
-  backdrop-filter: blur(8px);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .station-top {
@@ -395,12 +435,16 @@ html, body, #root {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .station-name {
   font-size: 15px;
   font-weight: 700;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .station-arrival {
@@ -415,44 +459,52 @@ html, body, #root {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  font-weight: 600;
 }
 
 .arrival-time {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--t1);
   line-height: 1.1;
+}
+
+.station-divider {
+  height: 1px;
+  background: var(--border-light);
 }
 
 .station-occupancy {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .occupancy-label {
   font-size: 12px;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .occupancy-dots {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .occupancy-dot {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.8);
+  box-shadow: var(--shadow-sm);
   transition: background 0.4s;
-  cursor: default;
 }
 
 .occupancy-avg {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
   margin-left: 4px;
 }
@@ -462,21 +514,18 @@ html, body, #root {
    ============================================= */
 
 .donate-panel {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: 100%;
+  min-height: calc(100% - 32px);
 }
 
 .donate-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px 24px;
+  padding: 32px 24px;
   text-align: center;
-  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
   width: 100%;
-  max-width: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -484,7 +533,7 @@ html, body, #root {
 }
 
 .donate-emoji {
-  font-size: 48px;
+  font-size: 52px;
   line-height: 1;
 }
 
@@ -492,35 +541,38 @@ html, body, #root {
   font-size: 22px;
   font-weight: 800;
   color: var(--text);
+  letter-spacing: -0.3px;
 }
 
 .donate-desc {
   font-size: 14px;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.7;
+  max-width: 280px;
 }
 
 .donate-btn {
   display: inline-block;
   background: var(--t1);
-  color: #000;
-  font-weight: 800;
-  font-size: 16px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
   border-radius: var(--radius-sm);
   padding: 13px 28px;
   text-decoration: none;
   transition: opacity 0.15s, transform 0.1s;
   letter-spacing: 0.2px;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
 }
 
 .donate-btn:active {
-  opacity: 0.85;
+  opacity: 0.9;
   transform: scale(0.97);
 }
 
 .donate-note {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-light);
 }
 
 /* =============================================
@@ -528,19 +580,19 @@ html, body, #root {
    ============================================= */
 
 .leaflet-container {
-  background: #1a2744;
+  background: #e8edf2;
 }
 
 .leaflet-popup-content-wrapper {
-  background: var(--bg2);
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
 }
 
 .leaflet-popup-tip {
-  background: var(--bg2);
+  background: var(--surface);
 }
 
 .leaflet-popup-close-button {
@@ -560,6 +612,6 @@ html, body, #root {
 }
 
 .bottom-panel::-webkit-scrollbar-thumb {
-  background: var(--bg3);
+  background: var(--border);
   border-radius: 2px;
 }
