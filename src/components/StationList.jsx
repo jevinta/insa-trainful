@@ -1,10 +1,10 @@
 import { STATIONS } from '../simulation/tramSimulation.js'
 
 function getColor(pct) {
-  if (pct < 50) return 'var(--green)'
-  if (pct < 75) return 'var(--yellow)'
-  if (pct < 90) return 'var(--orange)'
-  return 'var(--red)'
+  if (pct < 50) return '#059669'
+  if (pct < 75) return '#d97706'
+  if (pct < 90) return '#ea580c'
+  return '#dc2626'
 }
 
 export default function StationList({ arrivals, cars }) {
@@ -23,7 +23,10 @@ export default function StationList({ arrivals, cars }) {
                 </div>
                 <div className="station-arrival">
                   <span className="arrival-label">Next tram</span>
-                  <span className="arrival-time">{arrivalMin} min</span>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px' }}>
+                    <span className="arrival-time">{arrivalMin}</span>
+                    <span className="arrival-unit">min</span>
+                  </div>
                 </div>
               </div>
               <div className="station-divider" />

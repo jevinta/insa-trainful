@@ -33,9 +33,9 @@ export default function App() {
       {/* App header */}
       <header className="app-header">
         <div className="header-inner">
-          <span className="app-logo">🚋</span>
+          <div className="app-logo">🚋</div>
           <span className="app-name">Trainful</span>
-          <span className="app-sub">Lyon T1 Live Tracker</span>
+          <span className="app-sub">T1 · 26 stops</span>
         </div>
       </header>
 
