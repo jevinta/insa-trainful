@@ -25,7 +25,14 @@ export default function App() {
         <div className="header-inner">
           <div className="app-logo">🚋</div>
           <span className="app-name">Trainful</span>
-          <span className="app-sub">Lyon · T1 &amp; T4</span>
+          <a
+            href="https://www.tcl.fr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="app-sub tcl-link"
+          >
+            tcl.fr ↗
+          </a>
         </div>
       </header>
 
