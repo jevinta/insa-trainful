@@ -6,17 +6,19 @@ import DonateButton from './components/DonateButton.jsx'
 import {
   useTramT1_1, useTramT1_2, useTramT1_3,
   useTramT4_1, useTramT4_2, useTramT4_3,
-  T1_STATIONS, T4_STATIONS,
+  useRhonexpressRX_1, useRhonexpressRX_2, useRhonexpressRX_3,
+  T1_STATIONS, T4_STATIONS, RHONEXPRESS_STATIONS,
 } from './simulation/tramSimulation.js'
 
 const ROUTES = [
-  { id: 'T1', color: '#f59e0b', label: 'T1 Tram', stations: T1_STATIONS },
-  { id: 'T4', color: '#873F98', label: 'T4 Tram', stations: T4_STATIONS },
+  { id: 'T1', color: '#f59e0b', label: 'T1',           stations: T1_STATIONS },
+  { id: 'T4', color: '#873F98', label: 'T4',           stations: T4_STATIONS },
+  { id: 'RX', color: '#C0003C', label: 'Rhônexpress',  stations: RHONEXPRESS_STATIONS },
 ]
 
 export default function App() {
   const [openRoute, setOpenRoute] = useState('')
-  const [selectedTrain, setSelectedTrain] = useState({ T1: 0, T4: 0 })
+  const [selectedTrain, setSelectedTrain] = useState({ T1: 0, T4: 0, RX: 0 })
 
   const t1_1 = useTramT1_1()
   const t1_2 = useTramT1_2()
@@ -24,10 +26,14 @@ export default function App() {
   const t4_1 = useTramT4_1()
   const t4_2 = useTramT4_2()
   const t4_3 = useTramT4_3()
+  const rx_1 = useRhonexpressRX_1()
+  const rx_2 = useRhonexpressRX_2()
+  const rx_3 = useRhonexpressRX_3()
 
   const trains = {
     T1: [t1_1, t1_2, t1_3],
     T4: [t4_1, t4_2, t4_3],
+    RX: [rx_1, rx_2, rx_3],
   }
 
   function getSelectedTrainData(routeId) {
@@ -84,8 +90,10 @@ export default function App() {
         <TramMap
           t1Trains={trains.T1.map((train, i) => ({ ...train, onTramClick: () => selectTrain('T1', i) }))}
           t4Trains={trains.T4.map((train, i) => ({ ...train, onTramClick: () => selectTrain('T4', i) }))}
+          rxTrains={trains.RX.map((train, i) => ({ ...train, onTramClick: () => selectTrain('RX', i) }))}
           selectedT1={selectedTrain.T1}
           selectedT4={selectedTrain.T4}
+          selectedRX={selectedTrain.RX}
         />
       </div>
 
@@ -104,7 +112,7 @@ export default function App() {
                   <button className="route-bar" onClick={() => setOpenRoute(isOpen ? '' : route.id)}>
                     <span className="route-left">
                       <span className="route-color-dot" style={{ background: route.color }} />
-                      <span>{route.id}</span>
+                      <span>{route.label}</span>
                     </span>
                     <span className="route-arrow">{isOpen ? '⌄' : '›'}</span>
                   </button>
@@ -126,7 +134,7 @@ export default function App() {
                       </div>
 
                       <TramPanel
-                        line={route.id}
+                        line={route.label}
                         lineColor={route.color}
                         direction={trainData.direction}
                         currentStop={userStop}
