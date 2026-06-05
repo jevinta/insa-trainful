@@ -14,7 +14,7 @@ export default function TramPanel({ line, lineColor, direction, currentStop, nex
     if (pct < 50) return 'Free'
     if (pct < 75) return 'Moderate'
     if (pct < 90) return 'Busy'
-    return 'Packed'
+    return 'Full'
   }
 
   const bestCar = predictedCars.reduce((best, car) => car.predicted < best.predicted ? car : best, predictedCars[0])
@@ -28,24 +28,25 @@ export default function TramPanel({ line, lineColor, direction, currentStop, nex
 
     return (
       <div className={`train-car-wrap ${type}`}>
+        <div className="train-car-label">Car {car.id}</div>
+
         <button
           className={`train-car ${type}`}
           style={{ '--train-color': color }}
           onClick={() => setOpenCar(isOpen ? null : `${valueKey}-${car.id}`)}
         >
-          <div className="train-windows">
-            <span />
-            <span />
-            <span />
-          </div>
-
           <div className="train-car-text">
-            <span className="train-car-title">Car {car.id}</span>
+            <span className="train-capacity-label">Capacity:</span>
             <span className="train-car-status">{status}</span>
           </div>
 
           <span className="train-car-arrow">{isOpen ? '⌄' : '›'}</span>
         </button>
+
+        <div className="train-wheels">
+          <span />
+          <span />
+        </div>
 
         {isOpen && (
           <div className="train-car-details">
