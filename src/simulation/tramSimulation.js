@@ -118,11 +118,11 @@ export function estimateArrivals(stations, segmentIndex, directionIndex) {
 }
 
 // Generic simulation factory — call once per line
-function createSimulationHook(stations, directions, startSeg) {
+function createSimulationHook(stations, directions, startSeg, startDirection = 0) {
   return function () {
     const [segmentIndex,   setSegmentIndex]   = useState(startSeg)
     const [progress,       setProgress]       = useState(0)
-    const [directionIndex, setDirectionIndex] = useState(0)
+    const [directionIndex, setDirectionIndex] = useState(startDirection)
     const [cars,           setCars]           = useState(initCars)
     const [arrivals,       setArrivals]       = useState({})
 
@@ -174,14 +174,23 @@ function createSimulationHook(stations, directions, startSeg) {
       setCars(initCars())
       setSegmentIndex(startSeg)
       setProgress(0)
-      setDirectionIndex(0)
+      setDirectionIndex(startDirection)
     }
 
     return { tramPosition, direction, nextStation, cars, arrivals, refreshSimulation }
   }
 }
 
-// T1: direction 0 = heading south toward Debourg
-export const useTramSimulation    = createSimulationHook(T1_STATIONS, ['Debourg',                 'IUT - Feyssine'], 11)
-// T4: direction 0 = heading north toward La Doua
-export const useTramSimulationT4  = createSimulationHook(T4_STATIONS, ['La Doua - Gaston Berger', 'Hôpital Feyzin Vénissieux'], 12)
+// T1: direction 0 = heading south toward Debourg, direction 1 = heading north toward IUT
+export const useTramT1_1 = createSimulationHook(T1_STATIONS, ['Debourg', 'IUT - Feyssine'],  3, 0)
+export const useTramT1_2 = createSimulationHook(T1_STATIONS, ['Debourg', 'IUT - Feyssine'], 11, 0)
+export const useTramT1_3 = createSimulationHook(T1_STATIONS, ['Debourg', 'IUT - Feyssine'], 20, 1)
+
+// T4: direction 0 = heading north toward La Doua, direction 1 = heading south toward Hôpital Feyzin
+export const useTramT4_1 = createSimulationHook(T4_STATIONS, ['La Doua - Gaston Berger', 'Hôpital Feyzin Vénissieux'],  4, 0)
+export const useTramT4_2 = createSimulationHook(T4_STATIONS, ['La Doua - Gaston Berger', 'Hôpital Feyzin Vénissieux'], 13, 0)
+export const useTramT4_3 = createSimulationHook(T4_STATIONS, ['La Doua - Gaston Berger', 'Hôpital Feyzin Vénissieux'], 22, 1)
+
+// Legacy aliases
+export const useTramSimulation   = useTramT1_2
+export const useTramSimulationT4 = useTramT4_2

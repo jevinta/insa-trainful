@@ -2,7 +2,11 @@ import { useState } from 'react'
 import 'leaflet/dist/leaflet.css'
 import TramMap from './components/TramMap.jsx'
 import TramPanel from './components/TramPanel.jsx'
-import { useTramSimulation, useTramSimulationT4, T1_STATIONS, T4_STATIONS } from './simulation/tramSimulation.js'
+import {
+  useTramT1_1, useTramT1_2, useTramT1_3,
+  useTramT4_1, useTramT4_2, useTramT4_3,
+  T1_STATIONS, T4_STATIONS,
+} from './simulation/tramSimulation.js'
 
 const ROUTES = [
   { id: 'T1', color: '#f59e0b', label: 'T1 Tram', stations: T1_STATIONS },
@@ -11,77 +15,56 @@ const ROUTES = [
 
 export default function App() {
   const [openRoute, setOpenRoute] = useState('')
-  const [selectedTrain, setSelectedTrain] = useState({
-    T1: 'nearest',
-    T4: 'nearest',
-  })
+  const [selectedTrain, setSelectedTrain] = useState({ T1: 0, T4: 0 })
 
-  const t1 = useTramSimulation()
-  const t4 = useTramSimulationT4()
+  const t1_1 = useTramT1_1()
+  const t1_2 = useTramT1_2()
+  const t1_3 = useTramT1_3()
+  const t4_1 = useTramT4_1()
+  const t4_2 = useTramT4_2()
+  const t4_3 = useTramT4_3()
 
-  function getRouteData(routeId) {
-    return routeId === 'T1' ? t1 : t4
+  const trains = {
+    T1: [t1_1, t1_2, t1_3],
+    T4: [t4_1, t4_2, t4_3],
   }
 
-  function getRouteInfo(routeId) {
-    return ROUTES.find(route => route.id === routeId)
+  function getSelectedTrainData(routeId) {
+    return trains[routeId][selectedTrain[routeId]]
   }
 
   function getUserStop(routeId) {
-    const routeInfo = getRouteInfo(routeId)
-    return routeInfo.stations[0] // mock nearest stop from user location for now
-  }
-
-  function getTrainOffset(routeId) {
-    if (selectedTrain[routeId] === 'second') return 2
-    if (selectedTrain[routeId] === 'third') return 4
-    return 0
+    return ROUTES.find(r => r.id === routeId).stations[0]
   }
 
   function getStopsAway(routeId) {
-    const routeInfo = getRouteInfo(routeId)
-    const routeData = getRouteData(routeId)
+    const routeInfo = ROUTES.find(r => r.id === routeId)
+    const train = getSelectedTrainData(routeId)
     const userStop = getUserStop(routeId)
-    const offset = getTrainOffset(routeId)
-
-    const nextIndex = routeInfo.stations.findIndex(station => station.id === routeData.nextStation?.id)
-    const stopIndex = routeInfo.stations.findIndex(station => station.id === userStop.id)
-
+    const nextIndex = routeInfo.stations.findIndex(s => s.id === train.nextStation?.id)
+    const stopIndex = routeInfo.stations.findIndex(s => s.id === userStop.id)
     if (nextIndex === -1 || stopIndex === -1) return 0
-    return Math.abs(stopIndex - nextIndex) + offset
+    return Math.abs(stopIndex - nextIndex)
   }
 
   function getArrivalTime(routeId) {
-    const routeData = getRouteData(routeId)
+    const train = getSelectedTrainData(routeId)
     const userStop = getUserStop(routeId)
-    const baseArrival = routeData.arrivals[userStop.id] ?? 1
-
-    if (selectedTrain[routeId] === 'second') return Number(baseArrival) + 5
-    if (selectedTrain[routeId] === 'third') return Number(baseArrival) + 10
-    return baseArrival
-  }
-
-  function getDisplayCars(routeId) {
-    const routeData = getRouteData(routeId)
-    const offset = getTrainOffset(routeId)
-
-    return routeData.cars.map((car, index) => ({
-      ...car,
-      current: Math.min(car.capacity, Math.max(0, car.current + offset * (index + 2) - index * 3)),
-    }))
+    return train.arrivals[userStop.id] ?? 1
   }
 
   function getPredictedCars(routeId) {
-    const cars = getDisplayCars(routeId)
+    const train = getSelectedTrainData(routeId)
     const stopsAway = getStopsAway(routeId)
+    return train.cars.map((car, index) => ({
+      ...car,
+      predicted: Math.min(car.capacity, car.current + stopsAway * (index + 1)),
+    }))
+  }
 
-    return cars.map((car, index) => {
-      const addedPeople = stopsAway * (index + 1)
-      return {
-        ...car,
-        predicted: Math.min(car.capacity, car.current + addedPeople),
-      }
-    })
+  function selectTrain(routeId, index) {
+    setOpenRoute(routeId)
+    setSelectedTrain(prev => ({ ...prev, [routeId]: index }))
   }
 
   return (
@@ -98,8 +81,10 @@ export default function App() {
 
       <div className="map-area compact-map">
         <TramMap
-          t1={{ ...t1, onTramClick: () => setOpenRoute('T1') }}
-          t4={{ ...t4, onTramClick: () => setOpenRoute('T4') }}
+          t1Trains={trains.T1.map((train, i) => ({ ...train, onTramClick: () => selectTrain('T1', i) }))}
+          t4Trains={trains.T4.map((train, i) => ({ ...train, onTramClick: () => selectTrain('T4', i) }))}
+          selectedT1={selectedTrain.T1}
+          selectedT4={selectedTrain.T4}
         />
       </div>
 
@@ -109,9 +94,9 @@ export default function App() {
 
           <div className="route-list">
             {ROUTES.map(route => {
-              const routeData = getRouteData(route.id)
               const isOpen = openRoute === route.id
               const userStop = getUserStop(route.id)
+              const trainData = getSelectedTrainData(route.id)
 
               return (
                 <div key={route.id} className="route-accordion">
@@ -129,25 +114,27 @@ export default function App() {
                         <label>Train to view</label>
                         <select
                           value={selectedTrain[route.id]}
-                          onChange={e => setSelectedTrain(prev => ({ ...prev, [route.id]: e.target.value }))}
+                          onChange={e => setSelectedTrain(prev => ({ ...prev, [route.id]: Number(e.target.value) }))}
                         >
-                          <option value="nearest">Nearest train</option>
-                          <option value="second">Second nearest train</option>
-                          <option value="third">Third nearest train</option>
+                          {trains[route.id].map((train, i) => (
+                            <option key={i} value={i}>
+                              Train {i + 1} · → {train.direction} · near {train.nextStation?.name ?? '—'}
+                            </option>
+                          ))}
                         </select>
                       </div>
 
                       <TramPanel
                         line={route.id}
                         lineColor={route.color}
-                        direction={routeData.direction}
+                        direction={trainData.direction}
                         currentStop={userStop}
-                        nextStation={routeData.nextStation}
+                        nextStation={trainData.nextStation}
                         arrivalTime={getArrivalTime(route.id)}
                         stopsAway={getStopsAway(route.id)}
-                        cars={getDisplayCars(route.id)}
+                        cars={trainData.cars}
                         predictedCars={getPredictedCars(route.id)}
-                        onRefresh={routeData.refreshSimulation}
+                        onRefresh={trainData.refreshSimulation}
                       />
                     </div>
                   )}
