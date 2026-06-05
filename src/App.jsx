@@ -2,6 +2,7 @@ import { useState } from 'react'
 import 'leaflet/dist/leaflet.css'
 import TramMap from './components/TramMap.jsx'
 import TramPanel from './components/TramPanel.jsx'
+import DonateButton from './components/DonateButton.jsx'
 import {
   useTramT1_1, useTramT1_2, useTramT1_3,
   useTramT4_1, useTramT4_2, useTramT4_3,
@@ -144,6 +145,8 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      <DonateButton />
     </div>
   )
 }
