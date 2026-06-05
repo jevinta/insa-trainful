@@ -60,11 +60,16 @@ export default function TramPanel({ line, lineColor, direction, currentStop, nex
 
   function TrainSet({ trainCars, valueKey }) {
     return (
-      <div className="train-set">
-        {trainCars.map((car, index) => {
-          const type = index === 0 ? 'front-car' : index === trainCars.length - 1 ? 'back-car' : 'middle-car'
-          return <TrainCar key={car.id} car={car} valueKey={valueKey} type={type} />
-        })}
+      <div>
+        <div className="train-direction-row">
+          <span className="train-direction-label">← toward {direction}</span>
+        </div>
+        <div className="train-set">
+          {trainCars.map((car, index) => {
+            const type = index === 0 ? 'front-car' : index === trainCars.length - 1 ? 'back-car' : 'middle-car'
+            return <TrainCar key={car.id} car={car} valueKey={valueKey} type={type} />
+          })}
+        </div>
       </div>
     )
   }

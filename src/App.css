@@ -951,6 +951,20 @@ html, body, #root {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+.train-direction-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 4px;
+}
+
+.train-direction-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
 .train-set {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
