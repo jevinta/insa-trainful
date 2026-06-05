@@ -20,7 +20,7 @@ export default function DonateButton() {
               If it saves you a crowded commute, consider buying us a coffee!
             </p>
             <a
-              href="https://www.buymeacoffee.com/trainful"
+              href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
               target="_blank"
               rel="noopener noreferrer"
               className="donate-btn"
