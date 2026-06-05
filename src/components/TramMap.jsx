@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet'
+import { useEffect, useState } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { T1_STATIONS, T4_STATIONS } from '../simulation/tramSimulation.js'
 
@@ -22,6 +22,14 @@ function makeStationIcon(color) {
 
 const t1StationIcon = makeStationIcon('#f59e0b')
 const t4StationIcon = makeStationIcon('#873F98')
+
+const userLocationIcon = L.divIcon({
+  className: '',
+  html: `<div style="width:18px;height:18px;background:#3b82f6;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(59,130,246,0.6);"></div>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+  popupAnchor: [0, -12],
+})
 
 // ── T1 route: exact OSM waypoints for northern section, station coords south ──
 const t1RoutePositions = [
@@ -318,6 +326,24 @@ function makeTramIconT4(borderColor) {
   })
 }
 
+function useUserLocation() {
+  const [location, setLocation] = useState(null)
+  const [accuracy, setAccuracy] = useState(null)
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    const id = navigator.geolocation.watchPosition(
+      (pos) => {
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setAccuracy(pos.coords.accuracy)
+      },
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    )
+    return () => navigator.geolocation.clearWatch(id)
+  }, [])
+  return { location, accuracy }
+}
+
 function InvalidateSizeOnMount() {
   const map = useMap()
   useEffect(() => { setTimeout(() => map.invalidateSize(), 100) }, [map])
@@ -330,6 +356,7 @@ export default function TramMap({
 }) {
   const t1Occ = Math.round(t1Cars.reduce((s, c) => s + (c.current / c.capacity) * 100, 0) / t1Cars.length)
   const t4Occ = Math.round(t4Cars.reduce((s, c) => s + (c.current / c.capacity) * 100, 0) / t4Cars.length)
+  const { location: userLoc, accuracy } = useUserLocation()
 
   return (
     <MapContainer
@@ -402,6 +429,27 @@ export default function TramMap({
             </div>
           </Popup>
         </Marker>
+      )}
+
+      {/* User location */}
+      {userLoc && (
+        <>
+          {accuracy && (
+            <Circle
+              center={[userLoc.lat, userLoc.lng]}
+              radius={accuracy}
+              pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.1, weight: 1.5, opacity: 0.4 }}
+            />
+          )}
+          <Marker position={[userLoc.lat, userLoc.lng]} icon={userLocationIcon}>
+            <Popup>
+              <div style={{ fontFamily: 'system-ui', fontSize: '13px', color: '#1e293b' }}>
+                <div style={{ fontWeight: 700, marginBottom: '4px' }}>📍 You are here</div>
+                {accuracy && <div style={{ color: '#64748b', fontSize: '11px' }}>Accuracy: ~{Math.round(accuracy)}m</div>}
+              </div>
+            </Popup>
+          </Marker>
+        </>
       )}
     </MapContainer>
   )
