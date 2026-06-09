@@ -1,4 +1,8 @@
-export default function TramPanel({ line = 'T1', lineColor = '#f59e0b', direction, nextStation, cars, onRefresh }) {
+import { useState } from 'react'
+
+export default function TramPanel({ line, lineColor, direction, currentStop, nextStation, arrivalTime, stopsAway, cars, predictedCars, onRefresh }) {
+  const [openCar, setOpenCar] = useState(null)
+
   function getColor(pct) {
     if (pct < 50) return '#059669'
     if (pct < 75) return '#d97706'
@@ -6,84 +10,114 @@ export default function TramPanel({ line = 'T1', lineColor = '#f59e0b', directio
     return '#dc2626'
   }
 
-  function getStatusBg(pct) {
-    if (pct < 50) return '#ecfdf5'
-    if (pct < 75) return '#fffbeb'
-    if (pct < 90) return '#fff7ed'
-    return '#fef2f2'
-  }
-
-  function getLabel(pct) {
+  function getStatus(pct) {
     if (pct < 50) return 'Free'
     if (pct < 75) return 'Moderate'
     if (pct < 90) return 'Busy'
-    return 'Packed'
+    return 'Full'
   }
 
-  const totalPeople = cars.reduce((s, c) => s + c.current, 0)
-  const totalSeats  = cars.reduce((s, c) => s + c.capacity, 0)
+  const bestCar = predictedCars.reduce((best, car) => car.predicted < best.predicted ? car : best, predictedCars[0])
 
-  const badgeStyle = {
-    background: lineColor,
-    color: '#fff',
-    fontWeight: 800,
-    fontSize: '11px',
-    borderRadius: '6px',
-    padding: '3px 9px',
-    letterSpacing: '.5px',
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
+  function TrainCar({ car, valueKey = 'current', type }) {
+    const people = car[valueKey]
+    const pct = Math.round((people / car.capacity) * 100)
+    const color = getColor(pct)
+    const status = getStatus(pct)
+    const isOpen = openCar === `${valueKey}-${car.id}`
+
+    return (
+      <div className={`train-car-wrap ${type}`}>
+        <div className="train-car-label">Car {car.id}</div>
+
+        <button
+          className={`train-car ${type}`}
+          style={{ '--train-color': color }}
+          onClick={() => setOpenCar(isOpen ? null : `${valueKey}-${car.id}`)}
+        >
+          <div className="train-car-text">
+            <span className="train-capacity-label">Capacity:</span>
+            <span className="train-car-status">{status}</span>
+          </div>
+
+          <span className="train-car-arrow">{isOpen ? '⌄' : '›'}</span>
+        </button>
+
+        <div className="train-wheels">
+          <span />
+          <span />
+        </div>
+
+        {isOpen && (
+          <div className="train-car-details">
+            <strong>{people} / {car.capacity} people</strong>
+            <span>{pct}% full</span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  function TrainSet({ trainCars, valueKey }) {
+    return (
+      <div>
+        <div className="train-direction-row">
+          <span className="train-direction-label">← toward {direction}</span>
+        </div>
+        <div className="train-set">
+          {trainCars.map((car, index) => {
+            const type = index === 0 ? 'front-car' : index === trainCars.length - 1 ? 'back-car' : 'middle-car'
+            return <TrainCar key={car.id} car={car} valueKey={valueKey} type={type} />
+          })}
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="panel-content">
-      <div className="panel-header">
-        <div style={badgeStyle}>{line}</div>
-        <div className="panel-title-group">
-          <h2 className="panel-title">{line} Tram</h2>
-          <span className="panel-direction">
-            Direction: <strong>{direction}</strong>
-          </span>
-          {nextStation && (
-            <span className="panel-next-stop">
-              Next stop: <strong style={{ color: lineColor }}>{nextStation.name}</strong>
-            </span>
-          )}
+    <>
+      <div className="info-box ride-box">
+        <div className="box-title">Your ride</div>
+        <div className="ride-main">
+          <span className="line-pill" style={{ background: lineColor }}>{line}</span>
+          <div>
+            <h2>{line} toward {direction}</h2>
+            <p>Your stop: <strong>{currentStop.name}</strong></p>
+          </div>
+        </div>
+
+        <div className="ride-stats">
+          <div>
+            <span className="stat-big">{arrivalTime}</span>
+            <span className="stat-label">min away</span>
+          </div>
+          <div>
+            <span className="stat-big">{stopsAway}</span>
+            <span className="stat-label">stops away</span>
+          </div>
+          <div>
+            <span className="stat-big">{nextStation?.name || '—'}</span>
+            <span className="stat-label">tram is near</span>
+          </div>
         </div>
       </div>
 
-      <span className="section-label">Car occupancy</span>
-
-      <div className="cars-grid">
-        {cars.map(car => {
-          const pct   = Math.round((car.current / car.capacity) * 100)
-          const color = getColor(pct)
-          const bg    = getStatusBg(pct)
-          return (
-            <div key={car.id} className="car-card" style={{ '--car-color': color }}>
-              <div className="car-header">
-                <span className="car-label">Car {car.id}</span>
-                <span className="car-status" style={{ color, background: bg }}>{getLabel(pct)}</span>
-              </div>
-              <div className="car-pct" style={{ color }}>{pct}%</div>
-              <div className="car-bar-bg">
-                <div className="car-bar-fill" style={{ width: `${pct}%`, background: color }} />
-              </div>
-              <div className="car-count">{car.current} / {car.capacity} people</div>
-            </div>
-          )
-        })}
+      <div className="info-box">
+        <div className="box-title">Current train status</div>
+        <TrainSet trainCars={cars} valueKey="current" />
       </div>
 
-      <div className="panel-footer">
-        <div className="tram-specs">
-          <span>🚋 3 cars · {totalSeats} seats total</span>
-          <span>👥 {totalPeople} people on board</span>
+      <div className="info-box predicted-box">
+        <div className="box-title">Predicted at your stop</div>
+        <div className="best-car">
+          Best choice: <strong>Car {bestCar.id}</strong> — estimated {bestCar.predicted} / {bestCar.capacity} people
         </div>
-        <button className="refresh-btn" onClick={onRefresh} style={{ background: `linear-gradient(135deg, ${lineColor}, ${lineColor}cc)` }}>
-          ↺ Refresh
-        </button>
+        <TrainSet trainCars={predictedCars} valueKey="predicted" />
       </div>
-    </div>
+
+      <button className="refresh-btn full-refresh" onClick={onRefresh} style={{ background: lineColor }}>
+        ↺ Refresh simulation
+      </button>
+    </>
   )
 }

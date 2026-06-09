@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import { T1_STATIONS, T4_STATIONS } from '../simulation/tramSimulation.js'
+import { T1_STATIONS, T4_STATIONS, RHONEXPRESS_STATIONS, RHONEXPRESS_ROUTE_POSITIONS } from '../simulation/tramSimulation.js'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -22,6 +22,7 @@ function makeStationIcon(color) {
 
 const t1StationIcon = makeStationIcon('#f59e0b')
 const t4StationIcon = makeStationIcon('#873F98')
+const rxStationIcon = makeStationIcon('#C0003C')
 
 const userLocationIcon = L.divIcon({
   className: '',
@@ -306,23 +307,14 @@ function getOccupancyColor(pct) {
   return '#dc2626'
 }
 
-function makeTramIcon(borderColor) {
+function makeTramIcon(bgColor, borderColor, num, selected) {
+  const ring = selected ? `box-shadow:0 0 0 3px ${bgColor},0 2px 8px rgba(0,0,0,0.35);` : 'box-shadow:0 2px 8px rgba(0,0,0,0.3);'
   return L.divIcon({
     className: '',
-    html: `<div style="width:28px;height:28px;background:#f59e0b;border:3px solid ${borderColor};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);cursor:pointer;">🚋</div>`,
+    html: `<div style="position:relative;width:28px;height:28px;background:${bgColor};border:3px solid ${borderColor};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;${ring}cursor:pointer;">🚋<div style="position:absolute;top:-6px;right:-6px;background:#fff;color:${bgColor};border:1.5px solid ${bgColor};border-radius:50%;width:14px;height:14px;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:1;">${num}</div></div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
-    popupAnchor: [0, -16],
-  })
-}
-
-function makeTramIconT4(borderColor) {
-  return L.divIcon({
-    className: '',
-    html: `<div style="width:28px;height:28px;background:#873F98;border:3px solid ${borderColor};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(135,63,152,0.4);cursor:pointer;">🚋</div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -16],
+    popupAnchor: [0, -18],
   })
 }
 
@@ -350,12 +342,11 @@ function InvalidateSizeOnMount() {
   return null
 }
 
-export default function TramMap({
-  t1: { tramPosition: t1Pos, direction: t1Dir, nextStation: t1Next, cars: t1Cars, onTramClick: onT1Click },
-  t4: { tramPosition: t4Pos, direction: t4Dir, nextStation: t4Next, cars: t4Cars, onTramClick: onT4Click },
-}) {
-  const t1Occ = Math.round(t1Cars.reduce((s, c) => s + (c.current / c.capacity) * 100, 0) / t1Cars.length)
-  const t4Occ = Math.round(t4Cars.reduce((s, c) => s + (c.current / c.capacity) * 100, 0) / t4Cars.length)
+function avgOcc(cars) {
+  return Math.round(cars.reduce((s, c) => s + (c.current / c.capacity) * 100, 0) / cars.length)
+}
+
+export default function TramMap({ t1Trains, t4Trains, rxTrains, selectedT1, selectedT4, selectedRX }) {
   const { location: userLoc, accuracy } = useUserLocation()
 
   return (
@@ -377,6 +368,9 @@ export default function TramMap({
       {/* T4 route — purple */}
       <Polyline positions={t4RoutePositions} pathOptions={{ color: '#873F98', weight: 4, opacity: 0.9 }} />
 
+      {/* Rhônexpress route — red */}
+      <Polyline positions={RHONEXPRESS_ROUTE_POSITIONS} pathOptions={{ color: '#C0003C', weight: 4, opacity: 0.9 }} />
+
       {/* T1 station markers */}
       {T1_STATIONS.map(s => (
         <Marker key={s.id} position={[s.lat, s.lng]} icon={t1StationIcon}>
@@ -384,6 +378,18 @@ export default function TramMap({
             <div style={{ fontFamily: 'system-ui', fontSize: '13px', color: '#1e293b' }}>
               <div style={{ fontWeight: 700, marginBottom: '4px' }}>{s.name}</div>
               <span style={{ background: '#f59e0b', color: '#fff', fontWeight: 700, fontSize: '10px', borderRadius: '4px', padding: '2px 6px' }}>T1</span>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+
+      {/* Rhônexpress station markers */}
+      {RHONEXPRESS_STATIONS.map(s => (
+        <Marker key={s.id} position={[s.lat, s.lng]} icon={rxStationIcon}>
+          <Popup>
+            <div style={{ fontFamily: 'system-ui', fontSize: '13px', color: '#1e293b' }}>
+              <div style={{ fontWeight: 700, marginBottom: '4px' }}>{s.name}</div>
+              <span style={{ background: '#C0003C', color: '#fff', fontWeight: 700, fontSize: '10px', borderRadius: '4px', padding: '2px 6px' }}>Rhônexpress</span>
             </div>
           </Popup>
         </Marker>
@@ -401,35 +407,80 @@ export default function TramMap({
         </Marker>
       ))}
 
-      {/* T1 tram marker */}
-      {t1Pos && (
-        <Marker position={[t1Pos.lat, t1Pos.lng]} icon={makeTramIcon(getOccupancyColor(t1Occ))} eventHandlers={{ click: onT1Click }}>
-          <Popup>
-            <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '155px', color: '#1e293b' }}>
-              <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '5px' }}>T1 Tram</div>
-              <div style={{ color: '#64748b', marginBottom: '2px' }}>→ <strong style={{ color: '#1e293b' }}>{t1Dir}</strong></div>
-              <div style={{ color: '#64748b', marginBottom: '5px' }}>Next: <strong style={{ color: '#d97706' }}>{t1Next?.name}</strong></div>
-              <div style={{ color: getOccupancyColor(t1Occ), fontWeight: 700, marginBottom: '7px' }}>{t1Occ}% occupied</div>
-              <button onClick={onT1Click} style={{ background: '#f59e0b', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '12px', color: '#fff', width: '100%' }}>View details →</button>
-            </div>
-          </Popup>
-        </Marker>
-      )}
+      {/* T1 tram markers */}
+      {t1Trains.map((train, i) => {
+        if (!train.tramPosition) return null
+        const occ = avgOcc(train.cars)
+        const selected = i === selectedT1
+        return (
+          <Marker
+            key={i}
+            position={[train.tramPosition.lat, train.tramPosition.lng]}
+            icon={makeTramIcon('#f59e0b', getOccupancyColor(occ), i + 1, selected)}
+            eventHandlers={{ click: train.onTramClick }}
+          >
+            <Popup>
+              <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '155px', color: '#1e293b' }}>
+                <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '5px' }}>T1 · Train {i + 1}</div>
+                <div style={{ color: '#64748b', marginBottom: '2px' }}>→ <strong style={{ color: '#1e293b' }}>{train.direction}</strong></div>
+                <div style={{ color: '#64748b', marginBottom: '5px' }}>Next: <strong style={{ color: '#d97706' }}>{train.nextStation?.name}</strong></div>
+                <div style={{ color: getOccupancyColor(occ), fontWeight: 700, marginBottom: '7px' }}>{occ}% occupied</div>
+                <button onClick={train.onTramClick} style={{ background: '#f59e0b', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '12px', color: '#fff', width: '100%' }}>View details →</button>
+              </div>
+            </Popup>
+          </Marker>
+        )
+      })}
 
-      {/* T4 tram marker */}
-      {t4Pos && (
-        <Marker position={[t4Pos.lat, t4Pos.lng]} icon={makeTramIconT4(getOccupancyColor(t4Occ))} eventHandlers={{ click: onT4Click }}>
-          <Popup>
-            <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '155px', color: '#1e293b' }}>
-              <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '5px' }}>T4 Tram</div>
-              <div style={{ color: '#64748b', marginBottom: '2px' }}>→ <strong style={{ color: '#1e293b' }}>{t4Dir}</strong></div>
-              <div style={{ color: '#64748b', marginBottom: '5px' }}>Next: <strong style={{ color: '#873F98' }}>{t4Next?.name}</strong></div>
-              <div style={{ color: getOccupancyColor(t4Occ), fontWeight: 700, marginBottom: '7px' }}>{t4Occ}% occupied</div>
-              <button onClick={onT4Click} style={{ background: '#873F98', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '12px', color: '#fff', width: '100%' }}>View details →</button>
-            </div>
-          </Popup>
-        </Marker>
-      )}
+      {/* T4 tram markers */}
+      {t4Trains.map((train, i) => {
+        if (!train.tramPosition) return null
+        const occ = avgOcc(train.cars)
+        const selected = i === selectedT4
+        return (
+          <Marker
+            key={i}
+            position={[train.tramPosition.lat, train.tramPosition.lng]}
+            icon={makeTramIcon('#873F98', getOccupancyColor(occ), i + 1, selected)}
+            eventHandlers={{ click: train.onTramClick }}
+          >
+            <Popup>
+              <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '155px', color: '#1e293b' }}>
+                <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '5px' }}>T4 · Train {i + 1}</div>
+                <div style={{ color: '#64748b', marginBottom: '2px' }}>→ <strong style={{ color: '#1e293b' }}>{train.direction}</strong></div>
+                <div style={{ color: '#64748b', marginBottom: '5px' }}>Next: <strong style={{ color: '#873F98' }}>{train.nextStation?.name}</strong></div>
+                <div style={{ color: getOccupancyColor(occ), fontWeight: 700, marginBottom: '7px' }}>{occ}% occupied</div>
+                <button onClick={train.onTramClick} style={{ background: '#873F98', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '12px', color: '#fff', width: '100%' }}>View details →</button>
+              </div>
+            </Popup>
+          </Marker>
+        )
+      })}
+
+      {/* Rhônexpress tram markers */}
+      {rxTrains.map((train, i) => {
+        if (!train.tramPosition) return null
+        const occ = avgOcc(train.cars)
+        const selected = i === selectedRX
+        return (
+          <Marker
+            key={i}
+            position={[train.tramPosition.lat, train.tramPosition.lng]}
+            icon={makeTramIcon('#C0003C', getOccupancyColor(occ), i + 1, selected)}
+            eventHandlers={{ click: train.onTramClick }}
+          >
+            <Popup>
+              <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '155px', color: '#1e293b' }}>
+                <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '5px' }}>Rhônexpress · Train {i + 1}</div>
+                <div style={{ color: '#64748b', marginBottom: '2px' }}>→ <strong style={{ color: '#1e293b' }}>{train.direction}</strong></div>
+                <div style={{ color: '#64748b', marginBottom: '5px' }}>Next: <strong style={{ color: '#C0003C' }}>{train.nextStation?.name}</strong></div>
+                <div style={{ color: getOccupancyColor(occ), fontWeight: 700, marginBottom: '7px' }}>{occ}% occupied</div>
+                <button onClick={train.onTramClick} style={{ background: '#C0003C', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '12px', color: '#fff', width: '100%' }}>View details →</button>
+              </div>
+            </Popup>
+          </Marker>
+        )
+      })}
 
       {/* User location */}
       {userLoc && (
